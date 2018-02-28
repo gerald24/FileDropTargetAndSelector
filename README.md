@@ -13,7 +13,7 @@ Official releases of this add-on are available at Vaadin Directory. For Maven in
 
 ## Building and running demo
 
-git clone <url of the MyComponent repository>
+git clone https://github.com/gerald24/FileDropTargetAndSelector.git
 mvn clean install
 cd filedroptarget-and-selector-demo
 mvn jetty:run

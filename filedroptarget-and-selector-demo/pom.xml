@@ -5,8 +5,8 @@
     <groupId>net.g24</groupId>
     <artifactId>filedroptarget-and-selector-demo</artifactId>
     <packaging>war</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>MyComponent Add-on Demo</name>
+    <version>1.0.0</version>
+    <name>FileDropTargetAndSelector Add-on Demo</name>
 
     <prerequisites>
         <maven>3</maven>
