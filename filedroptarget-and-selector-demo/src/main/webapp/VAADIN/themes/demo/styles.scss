@@ -1,0 +1,35 @@
+@import "../valo/valo.scss";
+
+.demo {
+  @include valo;
+
+  .demoContentLayout {
+    .clickable {
+      width: 440px;
+      height: 150px;
+      background: lightgrey;
+      &:hover {
+        background: lightblue;
+        cursor: pointer;
+      }
+    }
+    .droparea {
+      width: 440px;
+      height: 150px;
+      background: beige;
+    }
+    .v-csslayout-droptarget {
+      outline: 1px dashed lightgrey;
+    }
+    .v-csslayout-drag-center {
+      outline: 3px dashed lightblue;
+      background: lightblue;
+    }
+    .v-label {
+      white-space: normal;
+      word-break: break-word;
+      padding: 4px;
+    }
+  }
+
+}
