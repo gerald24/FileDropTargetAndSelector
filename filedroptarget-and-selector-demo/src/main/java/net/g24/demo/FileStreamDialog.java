@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
+
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.shared.Registration;
@@ -102,13 +104,24 @@ public class FileStreamDialog extends Window {
         private boolean finished;
         private Runnable stateChangeHandler;
         private Runnable finishedHandler;
+        private Path tempFile;
+        private OutputStream outputStream;
 
         private HandledHtml5File(Html5File file) {
             this.file = file;
+
+            try {
+                tempFile = Files.createTempFile("demoview", "stream");
+                tempFile.toFile().deleteOnExit();
+                outputStream = Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
+            } catch (IOException e) {
+
+            }
+
             file.setStreamVariable(new StreamVariable() {
                 @Override
                 public OutputStream getOutputStream() {
-                    return createOutputStream();
+                    return outputStream;
                 }
 
                 @Override
@@ -129,11 +142,12 @@ public class FileStreamDialog extends Window {
                 public void streamingFinished(StreamingEndEvent event) {
                     HandledHtml5File.this.finished = true;
                     HandledHtml5File.this.handleFileFinished();
+                    ensureOutputStreamClosedAndRemoveTempFile();
                 }
 
                 @Override
                 public void streamingFailed(StreamingErrorEvent event) {
-
+                    ensureOutputStreamClosedAndRemoveTempFile();
                 }
 
                 @Override
@@ -152,16 +166,6 @@ public class FileStreamDialog extends Window {
         private void handleFileFinished() {
             if (finishedHandler != null) {
                 finishedHandler.run();
-            }
-        }
-
-        private OutputStream createOutputStream() {
-            try {
-                Path tempFile = Files.createTempFile("demoview", "stream");
-                tempFile.toFile().deleteOnExit();
-                return Files.newOutputStream(tempFile, StandardOpenOption.CREATE);
-            } catch (IOException e) {
-                return null;
             }
         }
 
@@ -192,5 +196,20 @@ public class FileStreamDialog extends Window {
         public boolean isNotFinished() {
             return !finished;
         }
+
+        private void ensureOutputStreamClosedAndRemoveTempFile() {
+            // for demo purpose we do not need uploaded resources
+            IOUtils.closeQuietly(outputStream);
+            outputStream = null;
+            if (tempFile != null) {
+                try {
+                    tempFile.toFile().delete();
+                } catch (RuntimeException e) {
+                    // ignore;
+                }
+                tempFile = null;
+            }
+        }
+
     }
 }
