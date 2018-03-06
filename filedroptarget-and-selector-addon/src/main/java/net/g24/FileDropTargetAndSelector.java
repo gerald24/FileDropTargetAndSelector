@@ -4,7 +4,6 @@ import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.dnd.FileDropHandler;
 import com.vaadin.ui.dnd.FileDropTarget;
-
 import net.g24.client.FileDropTargetAndSelectorState;
 
 /**
@@ -24,9 +23,13 @@ import net.g24.client.FileDropTargetAndSelectorState;
  */
 public class FileDropTargetAndSelector<T extends AbstractComponent> extends FileDropTarget<T> {
 
-    public FileDropTargetAndSelector(T target, Component buttonRole, FileDropHandler<T> fileDropHandler) {
+    public FileDropTargetAndSelector(T target, FileDropHandler<T> fileDropHandler) {
         super(target, fileDropHandler);
-        getState().buttonRole = buttonRole;
+    }
+
+    public FileDropTargetAndSelector(T target, Component buttonRole, FileDropHandler<T> fileDropHandler) {
+        this(target, fileDropHandler);
+        setButtonRole(buttonRole);
     }
 
     @Override
@@ -34,7 +37,12 @@ public class FileDropTargetAndSelector<T extends AbstractComponent> extends File
         return (FileDropTargetAndSelectorState) super.getState();
     }
 
+    public void setButtonRole(final Component buttonRole) {
+        getState().buttonRole = buttonRole;
+    }
+
     public void setMultiple(boolean multiple) {
         getState().multiple = multiple;
     }
+
 }

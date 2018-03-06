@@ -2,7 +2,6 @@ package net.g24.demo;
 
 import java.util.Arrays;
 import java.util.List;
-
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.annotations.Push;
@@ -12,6 +11,7 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
@@ -22,7 +22,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.dnd.event.FileDropEvent;
 import com.vaadin.ui.themes.ValoTheme;
-
 import net.g24.FileDropTargetAndSelector;
 
 @Push
@@ -33,22 +32,24 @@ public class DemoUI extends UI {
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = DemoUI.class)
-    public static class Servlet extends VaadinServlet {}
+    public static class Servlet extends VaadinServlet {
+
+    }
 
     private static final String DROP_AREA_DESCRIPTION = String.format( //
-        "<i>droparea</i>:<br><br><b>any component</b>, which is also accepted by <b>%s</b>",
-        FileDropTarget.class.getName());
+                                                                       "<i>droparea</i>:<br><br><b>any component</b>, which is also accepted by <b>%s</b>",
+                                                                       FileDropTarget.class.getName());
     private static final String CLICKABLE_LAYOUT_DESCRIPTION = String.format( //
-        "<i>clickable</i>:<br><br><b>any clickable Layout</b> (e.g. %s)",
-        CssLayout.class);
+                                                                              "<i>clickable</i>:<br><br><b>any clickable Layout</b> (e.g. %s)",
+                                                                              CssLayout.class);
     private static final String CLICKABLE_COMPONET_DESCRIPTION = String.format( //
-        "<i>clickable</i>:<br><br><b>any clickable component</b>, which implements client-side %s (e.g. %s)",
-        "com.google.gwt.event.dom.client.HasClickHandlers",
-        Label.class.getName());
+                                                                                "<i>clickable</i>:<br><br><b>any clickable component</b>, which implements client-side %s (e.g. %s)",
+                                                                                "com.google.gwt.event.dom.client.HasClickHandlers",
+                                                                                Label.class.getName());
 
     private final Label header = new Label("Sample UI for FileDropTargetAndSelector AddOn");
     private final Label description = new Label(
-        "FileDropTargetAndSelector extends FileDropTarget with client-side file selector activation through click events");
+            "FileDropTargetAndSelector extends FileDropTarget with client-side file selector activation through click events");
 
     private final CheckBox multipleField = new CheckBox("multiple");
     private final CheckBox enabledField = new CheckBox("enabled", true);
@@ -113,7 +114,27 @@ public class DemoUI extends UI {
 
     private HorizontalLayout layoutControls() {
         HorizontalLayout controlLayout = new HorizontalLayout();
-        controlLayout.addComponents(multipleField, enabledField, visibleField);
+
+        Button changeButtonRole = new Button("Change ButtonRole Components");
+        changeButtonRole.setDescription("Test replace button-role component (which triggers file selector)");
+        changeButtonRole.addStyleName(ValoTheme.BUTTON_SMALL);
+        changeButtonRole.addClickListener(e -> {
+            controlLayout.removeComponent(changeButtonRole);
+
+            CssLayout replacementClickableLayout = new CssLayout();
+            replacementClickableLayout.addStyleName("clickable");
+            replacementClickableLayout.addComponent(new Label("Replacement for clickable Layout)"));
+            targetAndSelector1.setButtonRole(replacementClickableLayout);
+
+            Label replacementClickableComponent = new Label("Replacement for clickable Label");
+            targetAndSelector2.setButtonRole(replacementClickableComponent);
+
+            controlLayout.addComponents(replacementClickableLayout, replacementClickableComponent);
+
+            getContent().addComponent(new Label("Clickable Components changed. Original clickable components must not trigger file selector anymore"));
+        });
+
+        controlLayout.addComponents(multipleField, enabledField, visibleField, changeButtonRole);
         return controlLayout;
     }
 
@@ -134,5 +155,10 @@ public class DemoUI extends UI {
     private void handleFiles(FileDropEvent<?> event) {
         // NOTE: room for handling files count and single/multi mode validation, as well as mimetype and size restrictions
         new FileStreamDialog().show(getUI()).load(event.getFiles(), multipleField.getValue());
+    }
+
+    @Override
+    public VerticalLayout getContent() {
+        return (VerticalLayout) super.getContent();
     }
 }

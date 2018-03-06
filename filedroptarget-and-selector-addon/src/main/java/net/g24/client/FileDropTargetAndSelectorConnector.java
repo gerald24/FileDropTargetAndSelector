@@ -48,6 +48,7 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
             }
         }
         if (stateChangeEvent.hasPropertyChanged("buttonRole")) {
+            handlerRegistration.removeHandler();
             if (getState().buttonRole instanceof AbstractLayoutConnector) {
                 registerClientSideLayoutClickListener((AbstractLayoutConnector) getState().buttonRole);
             } else if (getState().buttonRole instanceof ComponentConnector) {
@@ -72,14 +73,12 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     }
 
     private void registerClientSideLayoutClickListener(AbstractLayoutConnector connector) {
-        handlerRegistration.removeHandler();
         handlerRegistration = new OverridableLayoutClickEventHandler(connector, fileUpload).forceEventHandlerRegistration();
     }
 
     private void registerClientSideClickListener(ComponentConnector connector) {
         Widget widget = connector.getWidget();
         if (widget instanceof HasClickHandlers) {
-            handlerRegistration.removeHandler();
             handlerRegistration = ((HasClickHandlers) widget).addClickHandler(event -> {
                 if (connector.isEnabled()) {
                     fileUpload.click();

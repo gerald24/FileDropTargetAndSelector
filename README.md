@@ -83,6 +83,8 @@ Here is a simple example on how to try out the add-on component:
 
 new FileDropTargetAndSelector<>(dropArea1, clickableLayout, event -> ...)
 
+Note: clickable component (button-role) can be set/changed during runtime. 
+
 For a more comprehensive example, see src/test/java/org/vaadin/template/demo/DemoUI.java
 
 ## API
