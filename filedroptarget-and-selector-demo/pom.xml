@@ -5,7 +5,7 @@
     <groupId>net.g24</groupId>
     <artifactId>filedroptarget-and-selector-demo</artifactId>
     <packaging>war</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>FileDropTargetAndSelector Add-on Demo</name>
 
     <prerequisites>

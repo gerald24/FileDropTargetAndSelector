@@ -17,14 +17,15 @@ import com.vaadin.client.ui.AbstractLayoutConnector;
 import com.vaadin.client.ui.LayoutClickEventHandler;
 import com.vaadin.shared.ui.Connect;
 import com.vaadin.shared.ui.LayoutClickRpc;
-
 import elemental.events.Event;
 import net.g24.FileDropTargetAndSelector;
 
 @Connect(FileDropTargetAndSelector.class)
 public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector {
+
     private transient FileUpload fileUpload;
-    private transient HandlerRegistration handlerRegistration = () -> {};
+    private transient HandlerRegistration handlerRegistration = () -> {
+    };
 
     @Override
     protected void extend(ServerConnector target) {
@@ -48,13 +49,19 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
             }
         }
         if (stateChangeEvent.hasPropertyChanged("buttonRole")) {
-            handlerRegistration.removeHandler();
+            unregisterHandler();
             if (getState().buttonRole instanceof AbstractLayoutConnector) {
                 registerClientSideLayoutClickListener((AbstractLayoutConnector) getState().buttonRole);
             } else if (getState().buttonRole instanceof ComponentConnector) {
                 registerClientSideClickListener((AbstractComponentConnector) getState().buttonRole);
             }
         }
+    }
+
+    private void unregisterHandler() {
+        handlerRegistration.removeHandler();
+        handlerRegistration = () -> {
+        };
     }
 
     @Override
@@ -88,13 +95,13 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     }
 
     private native void addOnChangeEventHandler(Element element, FileDropTargetAndSelectorConnector instance)
-    /*-{
-        element.onchange = function () {
-            var nativeEvent = {"dataTransfer": {"files": element.files}};
-            instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDrop(Lelemental/events/Event;)(nativeEvent);
-    
-        };
-    }-*/;
+        /*-{
+            element.onchange = function () {
+                var nativeEvent = {"dataTransfer": {"files": element.files}};
+                instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDrop(Lelemental/events/Event;)(nativeEvent);
+
+            };
+        }-*/;
 
     private static class OverridableLayoutClickEventHandler extends LayoutClickEventHandler {
 
