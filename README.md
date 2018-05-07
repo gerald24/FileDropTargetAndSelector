@@ -90,3 +90,8 @@ For a more comprehensive example, see src/test/java/org/vaadin/template/demo/Dem
 ## API
 
 See Javadoc of FileDropTargetAndSelector.
+
+## Known Issues
+
+See https://github.com/vaadin/framework/issues/9974 for known issues on Windows 10.
+Workaround UI.setMobileHtml5DndEnabled(true); seems to fix this issue on Windows 10
