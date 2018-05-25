@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
-
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.shared.Registration;
@@ -27,12 +25,14 @@ import com.vaadin.ui.renderers.ProgressBarRenderer;
  * each file and make remaining upload progress cancellable. In case of single upload mode the first file of the given collection will be taken.
  */
 public class FileStreamDialog extends Window {
+
     private static final String CANCEL_RUNNING_AND_CLOSE_CAPTION = "Cancel running and Close";
     private static final String CLOSE_CAPTION = "Close";
 
     private final Grid<HandledHtml5File> grid = new Grid<>();
     private final Button button = new Button(CANCEL_RUNNING_AND_CLOSE_CAPTION, event -> close());
-    private Registration streamRegistration = () -> {};
+    private Registration streamRegistration = () -> {
+    };
 
     public FileStreamDialog() {
         grid.setSizeFull();
@@ -70,16 +70,14 @@ public class FileStreamDialog extends Window {
     @Override
     public void close() {
         streamRegistration.remove();
-        streamRegistration = () -> {};
+        streamRegistration = () -> {
+        };
         super.close();
     }
 
     public void load(Collection<Html5File> files, boolean multiple) {
-        List<HandledHtml5File> handledFiles = files
-            .stream() //
-            .limit(multiple ? files.size() : 1)
-            .map(HandledHtml5File::new)
-            .collect(Collectors.toList());
+        List<HandledHtml5File> handledFiles = files.stream() //
+                                                   .limit(multiple ? files.size() : 1).map(HandledHtml5File::new).collect(Collectors.toList());
         ListDataProvider<HandledHtml5File> provider = new ListDataProvider<>(handledFiles);
 
         grid.setDataProvider(provider);
@@ -97,6 +95,7 @@ public class FileStreamDialog extends Window {
     }
 
     private static class HandledHtml5File {
+
         private final Html5File file;
         private long received;
         private boolean listening = true;
@@ -136,7 +135,8 @@ public class FileStreamDialog extends Window {
                 }
 
                 @Override
-                public void streamingStarted(StreamingStartEvent event) {}
+                public void streamingStarted(StreamingStartEvent event) {
+                }
 
                 @Override
                 public void streamingFinished(StreamingEndEvent event) {
@@ -199,7 +199,13 @@ public class FileStreamDialog extends Window {
 
         private void ensureOutputStreamClosedAndRemoveTempFile() {
             // for demo purpose we do not need uploaded resources
-            IOUtils.closeQuietly(outputStream);
+            try {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException ioe) {
+                // ignore
+            }
             outputStream = null;
             if (tempFile != null) {
                 try {

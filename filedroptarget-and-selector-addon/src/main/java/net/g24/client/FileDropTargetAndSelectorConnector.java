@@ -23,31 +23,21 @@ import net.g24.FileDropTargetAndSelector;
 @Connect(FileDropTargetAndSelector.class)
 public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector {
 
-    private transient FileUpload fileUpload;
-    private transient HandlerRegistration handlerRegistration = () -> {
-    };
+    private transient HandlerRegistration handlerRegistration = null;
+    private transient AbstractComponentConnector target;
+    private transient HandlerRegistration fileChooserRemover = null;
 
     @Override
     protected void extend(ServerConnector target) {
+        this.target = (AbstractComponentConnector) target;
         super.extend(target);
-
-        fileUpload = GWT.create(FileUpload.class);
-        fileUpload.getElement().setAttribute("style", "display:none");
-        addOnChangeEventHandler(fileUpload.getElement(), this);
-
-        addFileUploadElementToDropTarget((AbstractComponentConnector) target);
+        // add file chooser for autom. test purposes
+        appendFileUpload();
     }
 
     @Override
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
         super.onStateChanged(stateChangeEvent);
-        if (stateChangeEvent.hasPropertyChanged("multiple")) {
-            if (getState().multiple) {
-                fileUpload.getElement().setAttribute("multiple", "multiple");
-            } else {
-                fileUpload.getElement().removeAttribute("multiple");
-            }
-        }
         if (stateChangeEvent.hasPropertyChanged("buttonRole")) {
             unregisterHandler();
             if (getState().buttonRole instanceof AbstractLayoutConnector) {
@@ -59,9 +49,10 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     }
 
     private void unregisterHandler() {
-        handlerRegistration.removeHandler();
-        handlerRegistration = () -> {
-        };
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+            handlerRegistration = null;
+        }
     }
 
     @Override
@@ -74,13 +65,8 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
         return (FileDropTargetAndSelectorState) super.getState();
     }
 
-    private void addFileUploadElementToDropTarget(AbstractComponentConnector target) {
-        Widget widget = target.getWidget();
-        widget.getElement().appendChild(fileUpload.getElement());
-    }
-
     private void registerClientSideLayoutClickListener(AbstractLayoutConnector connector) {
-        handlerRegistration = new OverridableLayoutClickEventHandler(connector, fileUpload).forceEventHandlerRegistration();
+        handlerRegistration = new OverridableLayoutClickEventHandler(connector, this).forceEventHandlerRegistration();
     }
 
     private void registerClientSideClickListener(ComponentConnector connector) {
@@ -88,29 +74,20 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
         if (widget instanceof HasClickHandlers) {
             handlerRegistration = ((HasClickHandlers) widget).addClickHandler(event -> {
                 if (connector.isEnabled()) {
-                    fileUpload.click();
+                    openFileChooser();
                 }
             });
         }
     }
 
-    private native void addOnChangeEventHandler(Element element, FileDropTargetAndSelectorConnector instance)
-        /*-{
-            element.onchange = function () {
-                var nativeEvent = {"dataTransfer": {"files": element.files}};
-                instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDrop(Lelemental/events/Event;)(nativeEvent);
-
-            };
-        }-*/;
-
     private static class OverridableLayoutClickEventHandler extends LayoutClickEventHandler {
 
-        private final FileUpload fileUpload;
+        private final FileDropTargetAndSelectorConnector selector;
         private boolean forceRegistration = true;
 
-        public OverridableLayoutClickEventHandler(ComponentConnector connector, FileUpload fileUpload) {
+        public OverridableLayoutClickEventHandler(ComponentConnector connector, FileDropTargetAndSelectorConnector selector) {
             super(connector);
-            this.fileUpload = fileUpload;
+            this.selector = selector;
         }
 
         public HandlerRegistration forceEventHandlerRegistration() {
@@ -135,7 +112,7 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
         @Override
         protected void fireClick(NativeEvent event) {
             if (connector.isEnabled()) {
-                fileUpload.click();
+                selector.openFileChooser();
             }
         }
 
@@ -144,4 +121,49 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
             return null;
         }
     }
+
+    private void openFileChooser() {
+        // remove old file chooser instead of reset input field
+        removeFileChooser();
+        appendFileUpload().click();
+    }
+
+    private void removeFileChooser() {
+        if (fileChooserRemover != null) {
+            fileChooserRemover.removeHandler();
+            fileChooserRemover = null;
+        }
+    }
+
+    private FileUpload appendFileUpload() {
+        FileUpload fileUpload = GWT.create(FileUpload.class);
+        fileUpload.getElement().setAttribute("style", "display:none");
+        if (getState().multiple) {
+            fileUpload.getElement().setAttribute("multiple", "multiple");
+        } else {
+            fileUpload.getElement().removeAttribute("multiple");
+        }
+        addOnChangeEventHandler(fileUpload.getElement(), this);
+
+        Widget widget = target.getWidget();
+        widget.getElement().appendChild(fileUpload.getElement());
+        fileChooserRemover = () -> widget.getElement().removeChild(fileUpload.getElement());
+        return fileUpload;
+    }
+
+    private native void addOnChangeEventHandler(Element element, FileDropTargetAndSelectorConnector instance)
+        /*-{
+            element.onchange = function () {
+                console.log("\n\n\n\n****************Event", element);
+                var nativeEvent = {
+                    "dataTransfer": {"files": element.files},
+                    "preventDefault": function () {
+                    },
+                    "stopPropagation": function () {
+                    }
+                };
+                instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDrop(Lelemental/events/Event;)(nativeEvent);
+            };
+        }-*/;
+
 }

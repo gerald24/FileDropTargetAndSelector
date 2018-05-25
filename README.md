@@ -52,8 +52,14 @@ Debugging client side code in the filedroptarget-and-selector-demo project:
  
 ## Release notes
 
-### Version 1.0-SNAPSHOT
+### Version 1.0
+
 - tested file selector FF, Chrome, Safari, IE 11, IE Edge
+
+### Version 1.0.3
+
+- fixed reset of input field
+
 
 ## Issue tracking
 
