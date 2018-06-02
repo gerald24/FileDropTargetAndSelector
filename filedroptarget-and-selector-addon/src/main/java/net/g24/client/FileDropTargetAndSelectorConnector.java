@@ -25,7 +25,7 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
 
     private transient HandlerRegistration handlerRegistration = null;
     private transient AbstractComponentConnector target;
-    private transient HandlerRegistration fileChooserRemover = null;
+    private transient FileUpload fileUpload;
 
     @Override
     protected void extend(ServerConnector target) {
@@ -38,6 +38,13 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     @Override
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
         super.onStateChanged(stateChangeEvent);
+        if (stateChangeEvent.hasPropertyChanged("multiple")) {
+            if (getState().multiple) {
+                fileUpload.getElement().setAttribute("multiple", "multiple");
+            } else {
+                fileUpload.getElement().removeAttribute("multiple");
+            }
+        }
         if (stateChangeEvent.hasPropertyChanged("buttonRole")) {
             unregisterHandler();
             if (getState().buttonRole instanceof AbstractLayoutConnector) {
@@ -123,20 +130,16 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     }
 
     private void openFileChooser() {
-        // remove old file chooser instead of reset input field
-        removeFileChooser();
-        appendFileUpload().click();
+        appendFileUpload();
+        fileUpload.click();
     }
 
-    private void removeFileChooser() {
-        if (fileChooserRemover != null) {
-            fileChooserRemover.removeHandler();
-            fileChooserRemover = null;
+    private void appendFileUpload() {
+        Widget widget = target.getWidget();
+        if (fileUpload != null) {
+            widget.getElement().removeChild(fileUpload.getElement());
         }
-    }
-
-    private FileUpload appendFileUpload() {
-        FileUpload fileUpload = GWT.create(FileUpload.class);
+        fileUpload = GWT.create(FileUpload.class);
         fileUpload.getElement().setAttribute("style", "display:none");
         if (getState().multiple) {
             fileUpload.getElement().setAttribute("multiple", "multiple");
@@ -145,16 +148,12 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
         }
         addOnChangeEventHandler(fileUpload.getElement(), this);
 
-        Widget widget = target.getWidget();
         widget.getElement().appendChild(fileUpload.getElement());
-        fileChooserRemover = () -> widget.getElement().removeChild(fileUpload.getElement());
-        return fileUpload;
     }
 
     private native void addOnChangeEventHandler(Element element, FileDropTargetAndSelectorConnector instance)
         /*-{
             element.onchange = function () {
-                console.log("\n\n\n\n****************Event", element);
                 var nativeEvent = {
                     "dataTransfer": {"files": element.files},
                     "preventDefault": function () {
