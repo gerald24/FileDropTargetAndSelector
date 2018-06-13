@@ -5,7 +5,7 @@
 	<groupId>net.g24</groupId>
 	<artifactId>filedroptarget-and-selector-root</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<name>FileDropTargetAndSelector Add-on Root Project</name>
 
 	<prerequisites>
