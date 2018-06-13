@@ -5,7 +5,7 @@
   <groupId>net.g24</groupId>
   <artifactId>filedroptarget-and-selector-demo</artifactId>
   <packaging>war</packaging>
-  <version>1.0.4</version>
+  <version>1.0.5-SNAPSHOT</version>
   <name>FileDropTargetAndSelector Add-on Demo</name>
 
   <prerequisites>
@@ -16,7 +16,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <vaadin.version>8.3.3</vaadin.version>
+    <vaadin.version>8.4.3</vaadin.version>
     <vaadin.plugin.version>8.3.3</vaadin.plugin.version>
     <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
   </properties>
