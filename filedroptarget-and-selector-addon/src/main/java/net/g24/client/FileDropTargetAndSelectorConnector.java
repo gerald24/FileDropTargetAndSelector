@@ -1,5 +1,6 @@
 package net.g24.client;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -70,7 +71,11 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
     protected void onDrop(Event event) {
         super.onDrop(event);
         appendFileUpload();
+        Scheduler.get().scheduleDeferred(() -> {
+            getConnection().getServerRpcQueue().flush();
+        });
     }
+
 
     @Override
     public FileDropTargetAndSelectorState getState() {
@@ -163,6 +168,7 @@ public class FileDropTargetAndSelectorConnector extends FileDropTargetConnector 
                     "stopPropagation": function () {
                     }
                 };
+                instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDragEnter(Lelemental/events/Event;)(nativeEvent);
                 instance.@net.g24.client.FileDropTargetAndSelectorConnector::onDrop(Lelemental/events/Event;)(nativeEvent);
             };
         }-*/;
