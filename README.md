@@ -1,6 +1,6 @@
-# FileDropTarget-And-Selector Add-on for Vaadin 8 (8.1+)
+# FileDropTarget-And-Selector Add-on for Vaadin 8 (8.9+)
 
-FileDropTargetAndSelector is a UI component extension for Vaadin 8.1+.
+FileDropTargetAndSelector is a UI component extension for Vaadin 8.9+.
 It extends Vaadin's FileDropTarget (since 8.1) extension with file selector capability and uses the same api to transfer the selected file(s) to the server.
 
 This extension simple uses following approach to get the selected file or files, and passes the FileList to Vaadin's FileDropTargetConnector: [Using files from web applications](https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications)
@@ -59,6 +59,10 @@ Debugging client side code in the filedroptarget-and-selector-demo project:
 ### Version 1.0.3
 
 - fixed reset of input field
+
+### Version 1.0.7
+
+- fixes drop state (fixes client side exception which prevents sending file immediately to server. Mouse move or other action was needed in order transfer was processed)
 
 
 ## Issue tracking
